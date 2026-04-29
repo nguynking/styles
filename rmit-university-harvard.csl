@@ -138,6 +138,21 @@
       </substitute>
     </names>
   </macro>
+  <macro name="author-short-newspaper">
+    <choose>
+      <if variable="author">
+        <names variable="author">
+          <name form="short" and="text" delimiter=", " delimiter-precedes-last="never" initialize-with=". "/>
+        </names>
+      </if>
+      <else>
+        <group delimiter=" ">
+          <text variable="container-title"/>
+          <text macro="issued-date-full"/>
+        </group>
+      </else>
+    </choose>
+  </macro>
   <macro name="access">
     <choose>
       <if variable="URL" type="article-newspaper document report speech webpage post post-weblog" match="any">
@@ -222,14 +237,21 @@
   </macro>
   <macro name="newspaper-webpage">
     <choose>
-      <if type="article-newspaper">
-        <group prefix=" " delimiter=", ">
-          <date variable="issued" prefix="">
-            <date-part name="day" suffix=" "/>
-            <date-part name="month" suffix=""/>
-          </date>
+      <if variable="URL">
+        <group delimiter=". ">
+          <text macro="accessed-date"/>
+          <text variable="URL"/>
         </group>
       </if>
+      <else-if variable="archive">
+        <group delimiter=", " suffix=".">
+          <text macro="accessed-date"/>
+          <group delimiter=" ">
+            <text variable="archive"/>
+            <text value="database"/>
+          </group>
+        </group>
+      </else-if>
     </choose>
   </macro>
   <macro name="presentation">
@@ -280,6 +302,20 @@
     <choose>
       <if variable="issued">
         <date variable="issued">
+          <date-part name="year"/>
+        </date>
+      </if>
+      <else>
+        <text term="no date" form="short"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="issued-date-full">
+    <choose>
+      <if variable="issued">
+        <date variable="issued" form="text">
+          <date-part name="day"/>
+          <date-part name="month"/>
           <date-part name="year"/>
         </date>
       </if>
@@ -354,6 +390,19 @@
             <text variable="locator" prefix=":"/>
           </group>
         </if>
+        <else-if type="article-newspaper article-magazine" match="any">
+          <group>
+            <group delimiter=" ">
+              <text macro="author-short-newspaper"/>
+              <choose>
+                <if variable="author">
+                  <text macro="year-date"/>
+                </if>
+              </choose>
+            </group>
+            <text variable="locator" prefix=":"/>
+          </group>
+        </else-if>
         <else-if type="document webpage" match="any">
           <group>
             <group delimiter=" ">
@@ -388,6 +437,9 @@
         <if type="article-journal">
           <text macro="author-journal"/>
         </if>
+        <else-if type="article-newspaper article-magazine" match="any">
+          <text macro="author-journal"/>
+        </else-if>
         <else-if type="document webpage" match="any">
           <text macro="author-webpage"/>
         </else-if>
@@ -396,9 +448,12 @@
         </else>
       </choose>
       <choose>
-        <if type="document webpage" match="any">
-          <text macro="year-date" prefix=" (" suffix=")"/>
+        <if type="article-newspaper article-magazine" match="any">
+          <text macro="issued-date-full" prefix=" (" suffix=")"/>
         </if>
+        <else-if type="document webpage" match="any">
+          <text macro="year-date" prefix=" (" suffix=")"/>
+        </else-if>
         <else>
           <date variable="issued" prefix=" (" suffix=")">
             <date-part name="year"/>
@@ -424,6 +479,19 @@
             </else>
           </choose>
         </if>
+        <else-if type="article-newspaper article-magazine" match="any">
+          <text variable="title" quotes="true" prefix=" "/>
+          <group delimiter=", " prefix=", ">
+            <text variable="container-title" font-style="italic"/>
+            <text macro="newspaper-webpage"/>
+          </group>
+          <choose>
+            <if variable="URL archive" match="any"/>
+            <else>
+              <text value="."/>
+            </else>
+          </choose>
+        </else-if>
         <else-if type="bill book graphic legal_case legislation motion_picture report song thesis" match="any">
           <group delimiter=" " prefix=" ">
             <text macro="title"/>
@@ -473,10 +541,9 @@
         </else>
       </choose>
       <choose>
-        <if type="article-journal"/>
+        <if type="article-journal article-newspaper article-magazine" match="any"/>
         <else>
           <text macro="presentation" prefix=", "/>
-          <text macro="newspaper-webpage" prefix=", "/>
           <text macro="access" prefix=", "/>
         </else>
       </choose>

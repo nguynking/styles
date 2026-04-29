@@ -291,6 +291,48 @@
       </else-if>
     </choose>
   </macro>
+  <macro name="conference-format">
+    <choose>
+      <if variable="genre">
+        <text variable="genre" text-case="lowercase" prefix="[" suffix="]"/>
+      </if>
+      <else>
+        <text value="conference presentation" prefix="[" suffix="]"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="conference-name">
+    <choose>
+      <if variable="event">
+        <text variable="event" font-style="italic"/>
+      </if>
+      <else>
+        <text variable="container-title" font-style="italic"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="conference-access">
+    <choose>
+      <if variable="archive">
+        <group delimiter=", " prefix=", " suffix=".">
+          <text macro="accessed-date"/>
+          <group delimiter=" ">
+            <text variable="archive"/>
+            <text value="database"/>
+          </group>
+        </group>
+      </if>
+      <else-if variable="URL">
+        <group delimiter=". " prefix=", ">
+          <text macro="accessed-date"/>
+          <text variable="URL"/>
+        </group>
+      </else-if>
+      <else>
+        <text value="."/>
+      </else>
+    </choose>
+  </macro>
   <macro name="presentation">
     <choose>
       <if type="speech">
@@ -462,7 +504,7 @@
             <text variable="locator" prefix=":"/>
           </group>
         </else-if>
-        <else-if type="book chapter entry-dictionary entry-encyclopedia" match="any">
+        <else-if type="book chapter entry-dictionary entry-encyclopedia paper-conference" match="any">
           <group>
             <group delimiter=" ">
               <text macro="author-short-book"/>
@@ -509,7 +551,7 @@
             </if>
           </choose>
         </else-if>
-        <else-if type="book chapter" match="any">
+        <else-if type="book chapter paper-conference" match="any">
           <text macro="author-book"/>
         </else-if>
         <else>
@@ -531,6 +573,9 @@
         </else-if>
         <else-if type="document webpage" match="any">
           <text macro="year-date" prefix=" (" suffix=")"/>
+        </else-if>
+        <else-if type="paper-conference">
+          <text macro="issued-date-full" prefix=" (" suffix=")"/>
         </else-if>
         <else>
           <date variable="issued" prefix=" (" suffix=")">
@@ -626,18 +671,13 @@
           <text prefix=" " macro="publisher"/>
         </else-if>
         <else-if type="paper-conference">
-          <text macro="title" prefix=" "/>
-          <group delimiter=" " prefix=", ">
-            <text term="in"/>
-            <group delimiter=", ">
-              <text macro="editor"/>
-              <text variable="container-title" font-style="italic"/>
-              <text variable="collection-title"/>
-              <text macro="edition"/>
-              <text macro="publisher"/>
-              <text macro="pages"/>
-            </group>
+          <text variable="title" quotes="true" prefix=" "/>
+          <text macro="conference-format" prefix=" "/>
+          <group delimiter=", " prefix=", ">
+            <text macro="conference-name"/>
+            <text variable="event-place"/>
           </group>
+          <text macro="conference-access"/>
         </else-if>
         <else-if type="document webpage" match="any">
           <text macro="title" prefix=" "/>
@@ -665,7 +705,7 @@
         </else>
       </choose>
       <choose>
-        <if type="article-journal article-newspaper article-magazine" match="any"/>
+        <if type="article-journal article-newspaper article-magazine paper-conference" match="any"/>
         <else>
           <text macro="presentation" prefix=", "/>
           <text macro="access" prefix=", "/>

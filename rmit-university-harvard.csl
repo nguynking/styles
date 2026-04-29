@@ -72,7 +72,7 @@
                   </else>
                 </choose>
               </else-if>
-              <else-if type="bill book graphic legal_case legislation motion_picture report song thesis" match="any">
+              <else-if type="bill book dataset graphic legal_case legislation motion_picture report song thesis" match="any">
                 <text variable="title" strip-periods="true" font-style="italic"/>
               </else-if>
               <else>
@@ -133,6 +133,12 @@
         <text macro="noauthor_title"/>
       </substitute>
     </names>
+  </macro>
+  <macro name="author-report">
+    <group>
+      <text macro="author-book"/>
+      <text variable="authority" prefix=" (" suffix=")"/>
+    </group>
   </macro>
   <macro name="author-short">
     <names variable="author">
@@ -333,6 +339,54 @@
       </else>
     </choose>
   </macro>
+  <macro name="report-source">
+    <choose>
+      <if variable="container-title">
+        <group delimiter=" ">
+          <text variable="container-title"/>
+          <text value="website"/>
+        </group>
+      </if>
+      <else-if variable="publisher-place">
+        <text macro="publisher"/>
+      </else-if>
+      <else-if variable="publisher">
+        <group delimiter=" ">
+          <text variable="publisher"/>
+          <text value="website"/>
+        </group>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="report-access">
+    <choose>
+      <if variable="URL">
+        <group delimiter=". ">
+          <text macro="accessed-date"/>
+          <text variable="URL"/>
+        </group>
+      </if>
+      <else-if variable="archive">
+        <group delimiter=", " suffix=".">
+          <text macro="accessed-date"/>
+          <group delimiter=" ">
+            <text variable="archive"/>
+            <text value="database"/>
+          </group>
+        </group>
+      </else-if>
+    </choose>
+  </macro>
+  <macro name="dataset-format">
+    <choose>
+      <if variable="medium">
+        <text variable="medium" text-case="lowercase" prefix="[" suffix="]"/>
+      </if>
+      <else>
+        <text value="data set" prefix="[" suffix="]"/>
+      </else>
+    </choose>
+  </macro>
   <macro name="presentation">
     <choose>
       <if type="speech">
@@ -346,8 +400,18 @@
   </macro>
   <macro name="report-number">
     <choose>
-      <if type="report">
-        <text variable="number" suffix=","/>
+      <if type="report" variable="number" match="all">
+        <group delimiter=" ">
+          <choose>
+            <if variable="genre">
+              <text variable="genre" text-case="lowercase"/>
+            </if>
+            <else>
+              <text value="report number"/>
+            </else>
+          </choose>
+          <text variable="number"/>
+        </group>
       </if>
     </choose>
   </macro>
@@ -504,7 +568,7 @@
             <text variable="locator" prefix=":"/>
           </group>
         </else-if>
-        <else-if type="book chapter entry-dictionary entry-encyclopedia paper-conference" match="any">
+        <else-if type="book chapter dataset entry-dictionary entry-encyclopedia paper-conference report" match="any">
           <group>
             <group delimiter=" ">
               <text macro="author-short-book"/>
@@ -554,6 +618,9 @@
         <else-if type="book chapter paper-conference" match="any">
           <text macro="author-book"/>
         </else-if>
+        <else-if type="report dataset" match="any">
+          <text macro="author-report"/>
+        </else-if>
         <else>
           <text macro="author"/>
         </else>
@@ -571,7 +638,7 @@
         <else-if type="article-newspaper article-magazine" match="any">
           <text macro="issued-date-full" prefix=" (" suffix=")"/>
         </else-if>
-        <else-if type="document webpage" match="any">
+        <else-if type="document webpage report dataset" match="any">
           <text macro="year-date" prefix=" (" suffix=")"/>
         </else-if>
         <else-if type="paper-conference">
@@ -661,7 +728,25 @@
             </if>
           </choose>
         </else-if>
-        <else-if type="bill book graphic legal_case legislation motion_picture report song thesis" match="any">
+        <else-if type="report">
+          <group delimiter=", " prefix=" ">
+            <text variable="title" strip-periods="false" font-style="italic"/>
+            <text macro="report-number"/>
+            <text macro="report-source"/>
+            <text macro="report-access"/>
+          </group>
+        </else-if>
+        <else-if type="dataset">
+          <group delimiter=", " prefix=" ">
+            <group delimiter=" ">
+              <text variable="title" strip-periods="false" font-style="italic"/>
+              <text macro="dataset-format"/>
+            </group>
+            <text macro="webpage-source"/>
+            <text macro="report-access"/>
+          </group>
+        </else-if>
+        <else-if type="bill book graphic legal_case legislation motion_picture song thesis" match="any">
           <group delimiter=" " prefix=" ">
             <text macro="title"/>
             <text macro="report-number"/>
@@ -705,7 +790,7 @@
         </else>
       </choose>
       <choose>
-        <if type="article-journal article-newspaper article-magazine paper-conference" match="any"/>
+        <if type="article-journal article-newspaper article-magazine paper-conference report dataset" match="any"/>
         <else>
           <text macro="presentation" prefix=", "/>
           <text macro="access" prefix=", "/>

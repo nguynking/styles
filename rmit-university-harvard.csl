@@ -59,7 +59,7 @@
           <name/>
           <substitute>
             <choose>
-              <if type="webpage post post-weblog" match="any">
+              <if type="document webpage post post-weblog" match="any">
                 <text variable="title" strip-periods="true" font-style="italic"/>
               </if>
               <else-if type="bill book graphic legal_case legislation motion_picture report song thesis" match="any">
@@ -97,9 +97,30 @@
       </else>
     </choose>
   </macro>
+  <macro name="author-webpage">
+    <names variable="author">
+      <name name-as-sort-order="all" and="text" sort-separator=" " initialize-with="" delimiter=", " delimiter-precedes-last="never"/>
+      <label form="short" prefix=" (" suffix=")"/>
+      <substitute>
+        <names variable="editor"/>
+        <names variable="translator"/>
+        <text macro="noauthor_title"/>
+      </substitute>
+    </names>
+  </macro>
   <macro name="author-short">
     <names variable="author">
       <name form="short" and="symbol" delimiter=", " delimiter-precedes-last="never" initialize-with=". "/>
+      <substitute>
+        <names variable="editor"/>
+        <names variable="translator"/>
+        <text macro="noauthor_title"/>
+      </substitute>
+    </names>
+  </macro>
+  <macro name="author-short-webpage">
+    <names variable="author">
+      <name form="short" and="text" delimiter=", " delimiter-precedes-last="never" initialize-with=". " et-al-min="3" et-al-use-first="1"/>
       <substitute>
         <names variable="editor"/>
         <names variable="translator"/>
@@ -119,7 +140,7 @@
   </macro>
   <macro name="access">
     <choose>
-      <if variable="URL" type="article-newspaper report speech webpage post post-weblog" match="any">
+      <if variable="URL" type="article-newspaper document report speech webpage post post-weblog" match="any">
         <group delimiter=". ">
           <group delimiter=" " prefix=" ">
             <text term="accessed"/>
@@ -132,6 +153,22 @@
           <text variable="URL"/>
         </group>
       </if>
+    </choose>
+  </macro>
+  <macro name="webpage-source">
+    <choose>
+      <if variable="container-title">
+        <group delimiter=" ">
+          <text variable="container-title"/>
+          <text value="website"/>
+        </group>
+      </if>
+      <else-if variable="publisher">
+        <group delimiter=" ">
+          <text variable="publisher"/>
+          <text value="website"/>
+        </group>
+      </else-if>
     </choose>
   </macro>
   <macro name="accessed-date">
@@ -215,8 +252,15 @@
   </macro>
   <macro name="title">
     <choose>
-      <if type="webpage post post-weblog" match="any">
-        <text variable="title" strip-periods="true" font-style="italic"/>
+      <if type="document webpage post post-weblog" match="any">
+        <choose>
+          <if variable="title">
+            <text variable="title" strip-periods="true" font-style="italic"/>
+          </if>
+          <else-if type="webpage">
+            <text value="Homepage"/>
+          </else-if>
+        </choose>
       </if>
       <else-if type="bill book graphic legal_case legislation motion_picture report song thesis" match="any">
         <text variable="title" strip-periods="false" font-style="italic" suffix=","/>
@@ -310,6 +354,15 @@
             <text variable="locator" prefix=":"/>
           </group>
         </if>
+        <else-if type="document webpage" match="any">
+          <group>
+            <group delimiter=" ">
+              <text macro="author-short-webpage"/>
+              <text macro="year-date"/>
+            </group>
+            <text variable="locator" prefix=":"/>
+          </group>
+        </else-if>
         <else>
           <group delimiter=", ">
             <group delimiter=" ">
@@ -335,13 +388,23 @@
         <if type="article-journal">
           <text macro="author-journal"/>
         </if>
+        <else-if type="document webpage" match="any">
+          <text macro="author-webpage"/>
+        </else-if>
         <else>
           <text macro="author"/>
         </else>
       </choose>
-      <date variable="issued" prefix=" (" suffix=")">
-        <date-part name="year"/>
-      </date>
+      <choose>
+        <if type="document webpage" match="any">
+          <text macro="year-date" prefix=" (" suffix=")"/>
+        </if>
+        <else>
+          <date variable="issued" prefix=" (" suffix=")">
+            <date-part name="year"/>
+          </date>
+        </else>
+      </choose>
       <choose>
         <if type="article-journal">
           <text variable="title" quotes="true" prefix=" "/>
@@ -384,7 +447,11 @@
             </group>
           </group>
         </else-if>
-        <else-if type="webpage post post-weblog" match="any">
+        <else-if type="document webpage" match="any">
+          <text macro="title" prefix=" "/>
+          <text macro="webpage-source" prefix=", "/>
+        </else-if>
+        <else-if type="post post-weblog" match="any">
           <text macro="title" prefix=" "/>
           <group delimiter=" " prefix=", ">
             <text variable="container-title"/>

@@ -20,6 +20,8 @@
   </info>
   <locale xml:lang="en">
     <terms>
+      <term name="article-locator">Article</term>
+      <term name="dataset">data set</term>
       <term name="editor" form="short">
         <single>ed.</single>
         <multiple>eds</multiple>
@@ -29,8 +31,11 @@
         <multiple>trans</multiple>
       </term>
       <term name="edition" form="short">edn</term>
+      <term name="issue" form="short">no.</term>
+      <term name="speech">conference presentation</term>
       <term name="volume" form="short">vol.</term>
       <term name="chapter" form="short">ch.</term>
+      <term name="webpage">website</term>
     </terms>
   </locale>
   <macro name="editor">
@@ -255,13 +260,13 @@
       <if variable="container-title">
         <group delimiter=" ">
           <text variable="container-title"/>
-          <text value="website"/>
+          <text term="webpage"/>
         </group>
       </if>
       <else-if variable="publisher">
         <group delimiter=" ">
           <text variable="publisher"/>
-          <text value="website"/>
+          <text term="webpage"/>
         </group>
       </else-if>
     </choose>
@@ -289,13 +294,13 @@
               <if variable="publisher">
                 <group delimiter=" ">
                   <text variable="publisher"/>
-                  <text value="website"/>
+                  <text term="webpage"/>
                 </group>
               </if>
               <else-if variable="archive">
                 <group delimiter=" ">
                   <text variable="archive"/>
-                  <text value="website"/>
+                  <text term="webpage"/>
                 </group>
               </else-if>
             </choose>
@@ -340,7 +345,7 @@
         <text variable="genre" text-case="lowercase" prefix="[" suffix="]"/>
       </if>
       <else>
-        <text value="conference presentation" prefix="[" suffix="]"/>
+        <text term="speech" prefix="[" suffix="]"/>
       </else>
     </choose>
   </macro>
@@ -381,7 +386,7 @@
       <if variable="container-title">
         <group delimiter=" ">
           <text variable="container-title"/>
-          <text value="website"/>
+          <text term="webpage"/>
         </group>
       </if>
       <else-if variable="publisher-place">
@@ -390,7 +395,7 @@
       <else-if variable="publisher">
         <group delimiter=" ">
           <text variable="publisher"/>
-          <text value="website"/>
+          <text term="webpage"/>
         </group>
       </else-if>
     </choose>
@@ -420,7 +425,7 @@
         <text variable="medium" text-case="lowercase" prefix="[" suffix="]"/>
       </if>
       <else>
-        <text value="data set" prefix="[" suffix="]"/>
+        <text term="dataset" prefix="[" suffix="]"/>
       </else>
     </choose>
   </macro>
@@ -539,11 +544,21 @@
               <text variable="page-first"/>
             </else>
           </choose>
-          <text variable="number" prefix="Article "/>
+          <choose>
+            <if variable="number">
+              <group delimiter=" ">
+                <text term="article-locator"/>
+                <text variable="number"/>
+              </group>
+            </if>
+          </choose>
         </group>
       </if>
       <else-if variable="number">
-        <text variable="number" prefix="Article "/>
+        <group delimiter=" ">
+          <text term="article-locator"/>
+          <text variable="number"/>
+        </group>
       </else-if>
     </choose>
   </macro>
@@ -882,8 +897,14 @@
           <group prefix=" ">
             <text variable="container-title" font-style="italic"/>
             <group prefix=", " delimiter=", ">
-              <text variable="volume" prefix="vol. "/>
-              <text variable="issue" prefix="no. "/>
+              <group delimiter=" ">
+                <label variable="volume" form="short"/>
+                <text variable="volume"/>
+              </group>
+              <group delimiter=" ">
+                <label variable="issue" form="short"/>
+                <text variable="issue"/>
+              </group>
               <text macro="pages"/>
             </group>
           </group>
